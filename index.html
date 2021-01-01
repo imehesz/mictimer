@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-129602100-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-129602100-1');
+    </script>
+
+	<meta charset="UTF-8">
+	<link href="https://gmpg.org/xfn/11" rel="profile">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	
+	<link rel="stylesheet" type="text/css" href="css/style.css?v=20201231aaaaaaaaaaa" crossorigin="anonymous">
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
+
+	<title>
+		Mic Timer - v0.1
+	</title>
+
+<script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+
+<script type="riot/tag">
+  <moo class="moo">
+  	<div>
+    	<h1>Moo</h1>
+    </div>
+  </moo>
+</script>
+
+<script type="riot/tag">
+  <web-app>
+  	<style>
+        .web-app {
+            color: #333;
+        }
+        
+        .web-app.dark {
+            color: #fff;
+        }
+
+        .web-app a {
+            color: #00f;
+        }
+
+        .web-app .mictimer {
+            font-size: 20vw;
+            text-shadow: 0 0 5px #fff;
+        }
+
+
+        .web-app .mictimer.overtime {
+            font-size: 22vw;
+            color: red;
+        }
+
+        .web-app.dark .mictimer {
+            text-shadow: 0 0 5px #000;
+        }
+
+        .web-app .mictimer small {
+            font-size: 4vw;
+        }
+    </style>
+  	<div class="web-app">
+        <div class="row">
+            <div class="col text-center">
+                <h1>Mic Timer</h1>
+                <fieldset>
+                    <legend><a onclick={ toggleSettings } href="javascript:void(0)">Settings</a></legend>
+                    <div show={ showSettings }>
+                        Time <input type="number" onChange={ validateTime } value={ allowedMaxTime / 60 } placeholder="Time" size="3" >
+                        Background Image <input type="text" onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
+                        Dark Mode <input type="checkbox" onclick={ toggleDarkMode } checked={theme == 'dark'}>
+                        <button class="btn btn-primary" onclick={ applySettings }>Apply</button>
+                    </div>
+                <fieldset>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col text-center mictimer { 'overtime' : overTime }">
+                <span show={ overTime }>-</span><span class="mictimer__mins">{ timerObj.mins }</span><small>m</small> <span class="mictimer__secs">{ timerObj.secs }</span><small>s</small>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col text-center">
+                <button class="btn btn-primary" onclick={ toggleTimer }>{ isTimerOn ? "Stop" : "Start" }</button>
+                <button class="btn btn-primary" onclick={ resetTimer }>Reset</button>
+            </div>
+        </div>
+
+    </div>
+
+    let tag = this
+    let tInterval
+    let defaultBgImg = "https://i.imgur.com/vD0Kur7.jpg"
+
+    tag.isTimerOn = false
+    tag.allowedMaxTime = 300
+    tag.allowedTime = tag.allowedMaxTime
+    tag.bgImage = defaultBgImg
+    tag.theme = "dark"
+    tag.overTime = false
+    tag.showSettings = false
+
+    tag.timerObj = MHX_UTIL.timeSlicer(tag.allowedTime)
+
+    tag.toggleTimer = () => {
+        tag.isTimerOn = !tag.isTimerOn
+        
+        if( tag.isTimerOn ) {
+            tInterval = setInterval(() => {
+                            if( tag.allowedTime <= 0 ) {
+                                tag.overTime = true
+                            }
+
+                            if( tag.overTime ) {
+                                tag.update({timerObj: MHX_UTIL.timeSlicer(++tag.allowedTime)})
+                            } else {
+                                tag.update({timerObj: MHX_UTIL.timeSlicer(--tag.allowedTime)})
+                            }
+                        }, 1000)
+        } else {
+            clearInterval( tInterval )
+        }
+    }
+
+    tag.resetTimer = () => {
+        tag.isTimerOn = false
+        tag.allowedTime = tag.allowedMaxTime
+        tag.overTime = false
+
+        if( tInterval ) clearInterval( tInterval )
+
+        tag.update({timerObj: MHX_UTIL.timeSlicer(tag.allowedTime)})
+    }
+
+    tag.applySettings = (e) => {
+        setTimeout(() => {
+            let $body = $("body")
+            let $webapp = $(".web-app")
+
+            $body.removeClass("dark")
+            $webapp.removeClass("dark")
+            
+            if( tag.theme && !$body.hasClass(tag.theme) ) $body.addClass(tag.theme)
+            if( tag.theme && !$webapp.hasClass(tag.theme) ) $webapp.addClass(tag.theme)
+
+            $body.css("background-image", `url(${tag.bgImage})`)
+            tag.allowedTime = tag.allowedMaxTime
+            tag.update({
+                timerObj: MHX_UTIL.timeSlicer(tag.allowedTime)
+            })
+        }, 0)
+    }
+
+    tag.validateBgImage = e => tag.bgImage = e.target.value
+    tag.validateTime = e => tag.allowedMaxTime = e.target.value * 60
+    tag.toggleDarkMode = e => tag.theme = tag.theme == "dark" ? "" : "dark"
+    tag.toggleSettings = e => tag.showSettings = !tag.showSettings
+
+    tag.applySettings()
+
+
+  </web-app>
+</script>
+
+</head>
+
+<body class="">
+
+	<div class="container">
+		<web-app />
+	</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", function(){
+        window.MHX_UTIL = {
+            getUrlVars: () => {
+    		    let vars = {}
+	            let parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m,key,value) => vars[key] = value)
+		    	return vars
+    		},
+
+            timeSlicer: (duration) => {
+                // Hours, minutes and seconds
+                let hrs = ~~(duration / 3600);
+                let mins = ~~((duration % 3600) / 60);
+                let secs = ~~duration % 60;
+
+                // Output like "1:01" or "4:03:59" or "123:03:59"
+                let ret = {
+                    hrs: hrs < 10 ? "0" + hrs : hrs,
+                    mins: mins < 10 ? "0" + mins : mins,
+                    secs: secs < 10 ? "0" + secs : secs
+                };
+
+                return ret;
+            }
+        }
+        
+		riot.mount("*")
+	});
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.3/js/bootstrap.min.js" integrity="sha512-8qmis31OQi6hIRgvkht0s6mCOittjMa9GMqtK9hes5iEQBQE/Ca6yGE5FsW36vyipGoWQswBj/QBm2JR086Rkw==" crossorigin="anonymous"></script>
+
+</body>
