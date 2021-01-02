@@ -67,7 +67,7 @@
 
 
         .web-app .mictimer.overtime {
-            font-size: 22vw;
+            font-size: 20vw;
             color: red;
         }
 
@@ -78,18 +78,54 @@
         .web-app .mictimer small {
             font-size: 4vw;
         }
+
+        .web-app .settings-wrapper {
+            padding: 15px;
+            background-color: #aaa;
+            border-radius: 10px;
+        }
+
+        .web-app .settings-wrapper label {
+            text-align: left;
+            color: #333;
+        }
+
+        .web-app .settings-gear {
+            font-size: 1em;
+            cursor: pointer;
+        }
     </style>
   	<div class="web-app">
         <div class="row">
             <div class="col text-center">
-                <h1>Mic Timer</h1>
+                <h1>Mic Timer <span onclick={ toggleSettings } class="settings-gear" title="Settings">&#9881;</span></h1>
                 <fieldset>
-                    <legend><a onclick={ toggleSettings } href="javascript:void(0)">Settings</a></legend>
-                    <div show={ showSettings }>
-                        Time <input type="number" onChange={ validateTime } value={ allowedMaxTime / 60 } placeholder="Time" size="3" >
-                        Background Image <input type="text" onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
-                        Dark Mode <input type="checkbox" onclick={ toggleDarkMode } checked={theme == 'dark'}>
-                        <button class="btn btn-primary" onclick={ applySettings }>Apply</button>
+                    <div class="settings-wrapper" show={ showSettings }>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Time (in mins)</label>
+                            <div class="col-sm-1">
+                                <input type="number" class="form-control form-control-sm" onChange={ validateTime } value={ allowedMaxTime / 60 } placeholder="Time" >
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Background Image</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Dark Mode</label>
+                            <div class="col-sm-1">
+                                <input type="checkbox" class="form-control form-control-sm" onclick={ toggleDarkMode } checked={theme == 'dark'}>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12">
+                                <button class="btn btn-primary btn-lg" onclick={ applySettings }>Apply</button>
+                            </div>
+                        </div>
                     </div>
                 <fieldset>
             </div>
@@ -97,7 +133,7 @@
         
         <div class="row">
             <div class="col text-center mictimer { 'overtime' : overTime }">
-                <span show={ overTime }>-</span><span class="mictimer__mins">{ timerObj.mins }</span><small>m</small> <span class="mictimer__secs">{ timerObj.secs }</span><small>s</small>
+                <span class="mictimer__mins">{ timerObj.mins }</span><small>m</small> <span class="mictimer__secs">{ timerObj.secs }</span><small>s</small>
             </div>
         </div>
 
