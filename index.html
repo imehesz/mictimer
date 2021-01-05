@@ -111,7 +111,7 @@
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Background Image</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control form-control-sm" onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
+                                <input type="text" class="form-control form-control-sm" onBlur={ validateBgImage } onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -149,14 +149,26 @@
     let tag = this
     let tInterval
     let defaultBgImg = "https://i.imgur.com/vD0Kur7.jpg"
+    let defaultAllowedMaxTime = 300
+    let defaultTheme = "dark"
 
     tag.isTimerOn = false
-    tag.allowedMaxTime = 300
-    tag.allowedTime = tag.allowedMaxTime
-    tag.bgImage = defaultBgImg
-    tag.theme = "dark"
     tag.overTime = false
     tag.showSettings = false
+
+    let savedSettings = MHX_UTIL.storage.get()
+
+    if( savedSettings ) {
+        tag.allowedMaxTime = savedSettings.allowedMaxTime
+        tag.theme = savedSettings.theme
+        tag.bgImage = savedSettings.bgImage
+    } else {
+        tag.allowedMaxTime = defaultAllowedMaxTime
+        tag.theme = defaultTheme
+        tag.bgImage = defaultBgImg
+    }
+   
+    tag.allowedTime = tag.allowedMaxTime
 
     tag.timerObj = MHX_UTIL.timeSlicer(tag.allowedTime)
 
@@ -206,6 +218,12 @@
             tag.update({
                 timerObj: MHX_UTIL.timeSlicer(tag.allowedTime)
             })
+
+            MHX_UTIL.storage.set({
+                theme: tag.theme,
+                allowedMaxTime: tag.allowedMaxTime,
+                bgImage: tag.bgImage
+            })
         }, 0)
     }
 
@@ -224,7 +242,7 @@
 
 <body class="">
 
-	<div class="container">
+	<div class="container-fluid">
 		<web-app />
 	</div>
 
@@ -251,6 +269,12 @@
                 };
 
                 return ret;
+            },
+
+            storage: {
+                id: "MHX_STORE__MICTIMER",
+                set: data => data ? localStorage.setItem(MHX_UTIL.storage.id, JSON.stringify(data)) : "",
+                get: () => JSON.parse(localStorage.getItem( MHX_UTIL.storage.id ))
             }
         }
         
