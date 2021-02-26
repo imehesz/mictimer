@@ -24,12 +24,12 @@
   
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 	
-	<link rel="stylesheet" type="text/css" href="css/style.css?v=20201231aaaaaaaaaaa" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="css/style.css?v=20210225" crossorigin="anonymous">
 	
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/riot/3.13.2/riot+compiler.min.js"></script>
 
 	<title>
-		Mic Timer - v0.1
+		Mic Timer - v0.2
 	</title>
 
 <script
@@ -98,7 +98,7 @@
   	<div class="web-app">
         <div class="row">
             <div class="col text-center">
-                <h1>Mic Timer <span onclick={ toggleSettings } class="settings-gear" title="Settings">&#9881;</span></h1>
+                <h1><span onclick={ toggleSettings } class="settings-gear" title="Settings">&#9881;</span></h1>
                 <fieldset>
                     <div class="settings-wrapper" show={ showSettings }>
                         <div class="form-group row">
@@ -114,12 +114,29 @@
                                 <input type="text" class="form-control form-control-sm" onBlur={ validateBgImage } onKeyup={ validateBgImage } value={ bgImage } placeholder="Background Image">
                             </div>
                         </div>
+                        <!--
                         <div class="form-group row">
                             <label class="col-sm-2 col-form-label">Dark Mode</label>
                             <div class="col-sm-1">
                                 <input type="checkbox" class="form-control form-control-sm" onclick={ toggleDarkMode } checked={theme == 'dark'}>
                             </div>
                         </div>
+                        -->
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Font Color</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" onBlur={ validateFontColor } onKeyup={ validateFontColor } value={ fontColor } placeholder="Font Color">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label">Background Color</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control form-control-sm" onBlur={ validateBackgroundColor } onKeyup={ validateBackgroundColor } value={ backgroundColor } placeholder="Background Color">
+                            </div>
+                        </div>
+
 
                         <div class="form-group row">
                             <div class="col-sm-12">
@@ -132,7 +149,7 @@
         </div>
         
         <div class="row">
-            <div class="col text-center mictimer { 'overtime' : overTime }">
+            <div class="col text-center mictimer { 'overtime' : overTime }" style="color:{ fontColor }">
                 <span class="mictimer__mins">{ timerObj.mins }</span><small>m</small> <span class="mictimer__secs">{ timerObj.secs }</span><small>s</small>
             </div>
         </div>
@@ -151,6 +168,8 @@
     let defaultBgImg = "https://i.imgur.com/vD0Kur7.jpg"
     let defaultAllowedMaxTime = 300
     let defaultTheme = "dark"
+    let defaultFontColor = "#fff"
+    let defaultBackgroundColor = "#000"
 
     tag.isTimerOn = false
     tag.overTime = false
@@ -162,11 +181,17 @@
         tag.allowedMaxTime = savedSettings.allowedMaxTime
         tag.theme = savedSettings.theme
         tag.bgImage = savedSettings.bgImage
+        tag.fontColor = savedSettings.fontColor
+        tag.backgroundColor = savedSettings.backgroundColor
     } else {
         tag.allowedMaxTime = defaultAllowedMaxTime
         tag.theme = defaultTheme
         tag.bgImage = defaultBgImg
+        tag.fontColor = defaultFontColor
+        tag.backgroundColor = defaultBackgroundColor
     }
+
+    $("body").css("background-color", tag.backgroundColor)
    
     tag.allowedTime = tag.allowedMaxTime
 
@@ -222,13 +247,20 @@
             MHX_UTIL.storage.set({
                 theme: tag.theme,
                 allowedMaxTime: tag.allowedMaxTime,
-                bgImage: tag.bgImage
+                bgImage: tag.bgImage,
+                fontColor: tag.fontColor,
+                backgroundColor: tag.backgroundColor
             })
+
+            $("body").css("background-color", tag.backgroundColor)
         }, 0)
     }
 
     tag.validateBgImage = e => tag.bgImage = e.target.value
     tag.validateTime = e => tag.allowedMaxTime = e.target.value * 60
+    tag.validateFontColor = e => tag.fontColor = e.target.value
+    tag.validateBackgroundColor = e => tag.backgroundColor = e.target.value
+
     tag.toggleDarkMode = e => tag.theme = tag.theme == "dark" ? "" : "dark"
     tag.toggleSettings = e => tag.showSettings = !tag.showSettings
 
